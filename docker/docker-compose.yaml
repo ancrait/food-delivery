@@ -1,0 +1,123 @@
+services:
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: fd-kafka
+    ports:
+      - "${KAFKA_PORT}:9092"
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://${KAFKA_HOST}:9092
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@${KAFKA_HOST}:9093
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false"
+      CLUSTER_ID: "HuDf6dYJS8Cy1xQoS4YNtg"
+    volumes:
+      - kafka-data:/var/lib/kafka/data
+    healthcheck:
+      test: ["CMD", "kafka-topics", "--bootstrap-server", "localhost:9092", "--list"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    container_name: fd-redis
+    ports:
+      - "${REDIS_PORT}:6379"
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "PING"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  postgres-auth:
+    image: postgres:16-alpine
+    container_name: fd-pg-auth
+    ports:
+      - "${DB_PORT_AUTH}:5432"
+    environment:
+      POSTGRES_DB: "${DB_NAME_AUTH}"
+      POSTGRES_USER: "${DB_USERNAME_AUTH}"
+      POSTGRES_PASSWORD: "${DB_PASSWORD_AUTH}"
+    volumes:
+      - pg-auth-data:/var/lib/postgresql/data
+
+  postgres-restaurant:
+    image: postgres:16-alpine
+    container_name: fd-pg-restaurant
+    ports:
+      - "${DB_PORT_RES}:5432"
+    environment:
+      POSTGRES_DB: "${DB_NAME_RES}"
+      POSTGRES_USER: "${DB_USERNAME_RES}"
+      POSTGRES_PASSWORD: "${DB_PASSWORD_RES}"
+    volumes:
+      - pg-restaurant-data:/var/lib/postgresql/data
+
+  postgres-order:
+    image: postgres:16-alpine
+    container_name: fd-pg-order
+    ports:
+      - "${DB_PORT_ORD}:5432"
+    environment:
+      POSTGRES_DB: "${DB_NAME_ORD}"
+      POSTGRES_USER: "${DB_USERNAME_ORD}"
+      POSTGRES_PASSWORD: "${DB_PASSWORD_ORD}"
+    volumes:
+      - pg-order-data:/var/lib/postgresql/data
+
+  postgres-delivery:
+    image: postgres:16-alpine
+    container_name: fd-pg-delivery
+    ports:
+      - "${DB_PORT_DEL}:5432"
+    environment:
+      POSTGRES_DB: "${DB_NAME_DEL}"
+      POSTGRES_USER: "${DB_USERNAME_DEL}"
+      POSTGRES_PASSWORD: "${DB_PASSWORD_DEL}"
+    volumes:
+      - pg-delivery-data:/var/lib/postgresql/data
+
+  postgres-payment:
+    image: postgres:16-alpine
+    container_name: fd-pg-payment
+    ports:
+      - "${DB_PORT_PAY}:5432"
+    environment:
+      POSTGRES_DB: "${DB_NAME_PAY}"
+      POSTGRES_USER: "${DB_USERNAME_PAY}"
+      POSTGRES_PASSWORD: "${DB_PASSWORD_PAY}"
+    volumes:
+      - pg-payment-data:/var/lib/postgresql/data
+
+  postgres-notification:
+    image: postgres:16-alpine
+    container_name: fd-pg-notification
+    ports:
+      - "${DB_PORT_NOT}:5432"
+    environment:
+      POSTGRES_DB: "${DB_NAME_NOT}"
+      POSTGRES_USER: "${DB_USERNAME_NOT}"
+      POSTGRES_PASSWORD: "${DB_PASSWORD_NOT}"
+    volumes:
+      - pg-notification-data:/var/lib/postgresql/data
+
+volumes:
+  kafka-data:
+  redis-data:
+  pg-auth-data:
+  pg-restaurant-data:
+  pg-order-data:
+  pg-delivery-data:
+  pg-payment-data:
+  pg-notification-data:
