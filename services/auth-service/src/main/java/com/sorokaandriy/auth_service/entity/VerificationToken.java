@@ -16,7 +16,7 @@ import java.util.UUID;
 @Builder
 @Entity
 @Table(name = "verification_tokens")
-public class VarificationToken {
+public class VerificationToken {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

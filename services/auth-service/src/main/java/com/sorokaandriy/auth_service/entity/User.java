@@ -54,6 +54,6 @@ public class User {
     private Set<RefreshToken> refreshTokens;
 
     @OneToMany(mappedBy = "user")
-    private Set<VarificationToken> varificationTokens;
+    private Set<VerificationToken> verificationTokens;
 
 }

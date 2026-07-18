@@ -17,14 +17,17 @@ public class JwtTokenProvider {
     private final SecretKey key;
     private final long accessTokenExpiration;
     private final long refreshTokenExpiration;
+    private final long verificationTokenExpiration;
 
     public JwtTokenProvider(
             @Value("${jwt.secret}") String secret,
             @Value("${jwt.access-token-expiration}") long accessTokenExpiration,
-            @Value("${jwt.refresh-token-expiration}") long refreshTokenExpiration) {
+            @Value("${jwt.refresh-token-expiration}") long refreshTokenExpiration,
+            @Value("${jwt.verification-token-expiration}") long verificationTokenExpiration) {
         this.key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
         this.accessTokenExpiration = accessTokenExpiration;
         this.refreshTokenExpiration = refreshTokenExpiration;
+        this.verificationTokenExpiration = verificationTokenExpiration;
     }
 
     public String generateAccessToken(String userId, String email, List<String> roles) {
@@ -46,6 +49,16 @@ public class JwtTokenProvider {
                 .subject(userId)
                 .issuedAt(now)
                 .expiration(new Date(now.getTime() + refreshTokenExpiration))
+                .signWith(key)
+                .compact();
+    }
+
+    public String generateVerificationToken(String userId) {
+        Date now = new Date();
+        return Jwts.builder()
+                .subject(userId)
+                .issuedAt(now)
+                .expiration(new Date(now.getTime() + verificationTokenExpiration))
                 .signWith(key)
                 .compact();
     }
