@@ -78,6 +78,14 @@ public class RestaurantController {
         return ResponseEntity.ok(service.findAllMenuItemFromRestaurant(id));
     }
 
+    @GetMapping("/{id}/menu/{menuItemId}")
+    public ResponseEntity<MenuItemResponse> findMenuItemFromRestaurant(
+            @PathVariable UUID id,
+            @PathVariable UUID menuItemId
+    ){
+        return ResponseEntity.ok(service.findMenuItemFromRestaurant(id, menuItemId));
+    }
+
 
     @PostMapping("/{id}/menu")
     @PreAuthorize("hasRole('ADMIN')")

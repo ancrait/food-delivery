@@ -30,7 +30,8 @@ public class SecurityConfig {
                 .authorizeExchange(exchanges -> exchanges
                         .pathMatchers("/api/v1/auth/**", "/actuator/**").permitAll()
                         .pathMatchers(HttpMethod.GET).permitAll()
-                        .pathMatchers("/api/v1/restaurants/**", "/api/v1/categories/**").hasRole("ADMIN")
+                        .pathMatchers("/api/v1/restaurants/**", "/api/v1/categories/**",
+                                "/api/v1/orders/**").hasAnyRole("CUSTOMER","ADMIN")
                         .anyExchange().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2

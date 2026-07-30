@@ -175,5 +175,18 @@ public class RestaurantService {
         redisTemplate.delete(REDIS_KEY + id);
 
     }
+
+    public MenuItemResponse findMenuItemFromRestaurant(UUID id, UUID menuItemId) {
+
+        MenuItem menuItem = menuItemRepository.findById(menuItemId)
+                .orElseThrow(() -> new MenuItemNotFoundException("MenuItem with id " + menuItemId + " not found"));
+
+        if (!menuItem.getRestaurant().getId().equals(id)) {
+            throw new IllegalArgumentException("MenuItem does not belong to this restaurant");
+        }
+
+        return restaurantMapper.fromMenuItemToMenuItemResponse(menuItem);
+
+    }
 }
 
