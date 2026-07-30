@@ -18,8 +18,6 @@ public class KafkaProducerService {
     @Value("${kafka.topics.user-registered}")
     private String userRegisteredTopic;
 
-    @Value("${kafka.topics.user-verifying-email}")
-    private String userVerifyTopic;
 
     public void sendUserRegistered(UserRegisteredEvent event) {
         kafkaTemplate.send(userRegisteredTopic, event.userId().toString(), event)
