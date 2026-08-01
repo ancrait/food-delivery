@@ -31,7 +31,8 @@ public class SecurityConfig {
                         .pathMatchers("/api/v1/auth/**", "/actuator/**").permitAll()
                         .pathMatchers(HttpMethod.GET).permitAll()
                         .pathMatchers("/api/v1/restaurants/**", "/api/v1/categories/**",
-                                "/api/v1/orders/**").hasAnyRole("CUSTOMER","ADMIN")
+                                "/api/v1/orders/**","/api/v1/deliveries/**")
+                        .hasAnyRole("CUSTOMER","ADMIN","RIDER")
                         .anyExchange().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2
