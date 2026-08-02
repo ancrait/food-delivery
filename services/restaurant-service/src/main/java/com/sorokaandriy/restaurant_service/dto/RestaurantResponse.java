@@ -15,6 +15,8 @@ public record RestaurantResponse(
         Double rating,
         String logoUrl,
         boolean isActive,
+        Double latitude,
+        Double longitude,
         List<MenuItemResponse> menuItems
 ) {}
 

@@ -39,6 +39,8 @@ public class RestaurantMapper {
                 restaurant.getRating(),
                 restaurant.getLogoUrl(),
                 restaurant.isActive(),
+                restaurant.getLatitude(),
+                restaurant.getLongitude(),
                 menuItemResponses
         );
     }
@@ -52,6 +54,8 @@ public class RestaurantMapper {
                 .rating(request.rating())
                 .logoUrl(request.logoUrl())
                 .isActive(request.isActive())
+                .latitude(request.latitude())
+                .longitude(request.longitude())
                 .createdAt(Instant.now())
                 .updatedAt(Instant.now())
                 .menuItems(null)
@@ -67,6 +71,8 @@ public class RestaurantMapper {
         restaurant.setRating(request.rating());
         restaurant.setLogoUrl(request.logoUrl());
         restaurant.setActive(request.isActive());
+        restaurant.setLatitude(request.latitude());
+        restaurant.setLongitude(request.longitude());
         restaurant.setUpdatedAt(Instant.now());
     }
 

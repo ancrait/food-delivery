@@ -19,7 +19,11 @@ public record RestaurantRequest(
         Double rating,
         @Size(max = 256)
         String logoUrl,
-        boolean isActive
+        boolean isActive,
+        @NotNull
+        Double latitude,
+        @NotNull
+        Double longitude
 
 ) {
 }
