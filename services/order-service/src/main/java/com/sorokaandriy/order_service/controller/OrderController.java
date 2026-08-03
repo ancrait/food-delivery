@@ -4,10 +4,8 @@ import com.sorokaandriy.order_service.dto.OrderRequest;
 import com.sorokaandriy.order_service.dto.OrderResponse;
 import com.sorokaandriy.order_service.entity.Status;
 import com.sorokaandriy.order_service.service.OrderService;
-import jakarta.persistence.Enumerated;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.Response;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -44,7 +42,7 @@ public class OrderController {
 
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('CUSTOMER','ADMIN')")
-    public ResponseEntity<OrderResponse> findOrderResponse(
+    public ResponseEntity<OrderResponse> findOrderById(
             @PathVariable UUID id
             ){
         return ResponseEntity.ok(service.findOrderById(id));
