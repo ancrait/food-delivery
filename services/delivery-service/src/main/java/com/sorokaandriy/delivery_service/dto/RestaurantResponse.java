@@ -1,4 +1,4 @@
-package com.sorokaandriy.restaurant_service.dto;
+package com.sorokaandriy.delivery_service.dto;
 
 import lombok.Builder;
 

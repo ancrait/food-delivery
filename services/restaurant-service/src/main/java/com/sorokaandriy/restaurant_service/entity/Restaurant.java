@@ -35,6 +35,10 @@ public class Restaurant {
     private String logoUrl;
     @Column(name = "is_active")
     private boolean isActive;
+    @Column(nullable = false)
+    private Double latitude;
+    @Column(nullable = false)
+    private Double longitude;
     @Column(name = "created_at")
     @Builder.Default
     private Instant createdAt = Instant.now();

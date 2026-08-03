@@ -1,8 +1,7 @@
 package com.sorokaandriy.delivery_service.service;
 
-import com.sorokaandriy.delivery_service.dto.DeliveryResponse;
-import com.sorokaandriy.delivery_service.dto.OrderCreatedEvent;
-import com.sorokaandriy.delivery_service.dto.RiderResponse;
+import com.sorokaandriy.delivery_service.Client.RestClientService;
+import com.sorokaandriy.delivery_service.dto.*;
 import com.sorokaandriy.delivery_service.entity.Delivery;
 import com.sorokaandriy.delivery_service.entity.DeliveryStatus;
 import com.sorokaandriy.delivery_service.entity.Rider;
@@ -14,9 +13,7 @@ import com.sorokaandriy.delivery_service.repository.DeliveryRepository;
 import com.sorokaandriy.delivery_service.repository.RiderRepository;
 import com.sorokaandriy.delivery_service.service.mapper.DeliveryMapper;
 import com.sorokaandriy.delivery_service.websocket.DeliveryWebSocketHandler;
-import jakarta.persistence.criteria.From;
 import lombok.RequiredArgsConstructor;
-import org.jspecify.annotations.Nullable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -37,6 +34,7 @@ public class DeliveryService {
     private final DeliveryMapper mapper;
     private final KafkaProducerService kafkaProducerService;
     private final DeliveryWebSocketHandler webSocketHandler;
+    private final RestClientService client;
 
     public RiderResponse createRiderProfile() {
         Authentication authentication = SecurityContextHolder
@@ -93,20 +91,29 @@ public class DeliveryService {
                 .map(mapper::fromDeliveryToDeliveryResponse);
     }
 
-    
+
 
     public void assignDelivery(OrderCreatedEvent event) {
         Delivery delivery = mapper.fromOrderCreatedEventToDelivery(event);
         deliveryRepository.save(delivery);
 
-        riderRepository.findFirstByRiderStatus(RiderStatus.ONLINE).ifPresent(rider -> {
+        OrderResponse orderResponse = client.getOrder(delivery.getOrderId());
+        RestaurantResponse restaurantResponse =
+                client.getRestaurantLocation(orderResponse.restaurantId());
+        RiderLocationResponse riderLocationResponse = client.getNearestRiderLocation(restaurantResponse.latitude(),
+                restaurantResponse.longitude());
+
+        if (riderLocationResponse != null && riderLocationResponse.riderId() != null) {
+            Rider rider = riderRepository.findById(riderLocationResponse.riderId())
+                    .orElseThrow(() -> new RiderNotFoundException("Rider not found"));
+
             delivery.setRider(rider);
             rider.setRiderStatus(RiderStatus.BUSY);
             deliveryRepository.save(delivery);
 
             webSocketHandler.sendToRider(rider.getId().toString(),
                     "{\"event\":\"NEW_ORDER\",\"deliveryId\":\"" + delivery.getId() + "\"}");
-        });
+        }
     }
 
 
