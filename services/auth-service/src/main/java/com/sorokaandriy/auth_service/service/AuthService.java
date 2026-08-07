@@ -104,11 +104,13 @@ public class AuthService {
     }
 
 
-
+    // call every 30 minutes if user call api
     @Transactional
     public AuthResponse refresh(RefreshTokenRequest request) {
         String rawToken = request.refreshToken();
 
+
+        // check only refresh token not access token if refresh token not valid(data or time) again login
         Claims claims;
         try {
             claims = jwtTokenProvider.validateToken(rawToken);
@@ -189,6 +191,9 @@ public class AuthService {
         } catch (JwtException ignored) {
         }
     }
+
+
+
 
     private void saveRefreshToken(User user, String token) {
         RefreshToken refreshToken = RefreshToken.builder()
