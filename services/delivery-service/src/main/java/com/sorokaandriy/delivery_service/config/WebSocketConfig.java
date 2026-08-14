@@ -13,11 +13,13 @@ import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry
 public class WebSocketConfig implements WebSocketConfigurer {
 
     private final DeliveryWebSocketHandler deliveryWebSocketHandler;
+    private final JwtHandshakeInterceptor jwtHandshakeInterceptor;
 
     // handle any request like /ws/delivery and redirects them to deliveryWebSocketHandler
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
         registry.addHandler(deliveryWebSocketHandler, "/ws/delivery")
+                .addInterceptors(jwtHandshakeInterceptor)
                 .setAllowedOrigins("*");
     }
 }

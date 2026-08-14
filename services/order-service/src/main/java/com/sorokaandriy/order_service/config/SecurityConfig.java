@@ -41,7 +41,9 @@ public class SecurityConfig {
     @Bean
     public JwtDecoder jwtDecoder() {
         byte[] keyBytes = jwtSecret.getBytes(StandardCharsets.UTF_8);
-        return NimbusJwtDecoder.withSecretKey(new SecretKeySpec(keyBytes, "HmacSHA256")).build();
+        byte[] hs256Key = new byte[32];
+        System.arraycopy(keyBytes, 0, hs256Key, 0, Math.min(keyBytes.length, 32));
+        return NimbusJwtDecoder.withSecretKey(new SecretKeySpec(hs256Key, "HmacSHA256")).build();
     }
 
 
@@ -49,7 +51,7 @@ public class SecurityConfig {
     @Bean
     public JwtAuthenticationConverter jwtAuthenticationConverter() {
         var authoritiesConverter = new JwtGrantedAuthoritiesConverter();
-        authoritiesConverter.setAuthorityPrefix("ROLE_");
+        authoritiesConverter.setAuthorityPrefix("");
         authoritiesConverter.setAuthoritiesClaimName("roles");
 
         var converter = new JwtAuthenticationConverter();
@@ -59,3 +61,4 @@ public class SecurityConfig {
 
 
 }
+

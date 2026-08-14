@@ -49,7 +49,7 @@ public class PaymentMapper {
                 .amount(payment.getAmount())
                 .currency(payment.getCurrency())
                 .paymentStatus(payment.getPaymentStatus())
-                .createdAt(Instant.now())
+                .createdAt(payment.getCreatedAt())
                 .build();
     }
 

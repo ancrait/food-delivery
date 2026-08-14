@@ -17,9 +17,10 @@ public class RiderLocationMapper {
         return RiderLocationResponse.builder()
                 .id(riderLocation.getId())
                 .riderId(riderLocation.getRiderId())
+                .status(riderLocation.getStatus())
                 .latitude(riderLocation.getLatitude())
                 .longitude(riderLocation.getLongitude())
-                .updateAt(riderLocation.getUpdatedAt())
+                .updatedAt(riderLocation.getUpdatedAt())
                 .build();
     }
 }

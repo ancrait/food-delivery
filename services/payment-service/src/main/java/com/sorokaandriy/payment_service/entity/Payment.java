@@ -1,16 +1,16 @@
 package com.sorokaandriy.payment_service.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.UUID;
 
-@Data
+@Getter
+@Setter
+@ToString
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
@@ -20,10 +20,11 @@ public class Payment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
+    @EqualsAndHashCode.Include
     private UUID id;
     @Column(name = "order_id",nullable = false, unique = true)
     private UUID orderId;
-    @Column(name = "user_Id")
+    @Column(name = "user_id")
     private UUID userId;
     @Column(nullable = false)
     private BigDecimal amount;

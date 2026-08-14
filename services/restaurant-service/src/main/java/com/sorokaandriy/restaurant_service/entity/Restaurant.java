@@ -1,16 +1,17 @@
 package com.sorokaandriy.restaurant_service.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
-@Data
+@Getter
+@Setter
+@ToString
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
@@ -20,6 +21,7 @@ public class Restaurant {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
+    @EqualsAndHashCode.Include
     private UUID id;
     @Column(nullable = false)
     private String name;
@@ -30,7 +32,7 @@ public class Restaurant {
     @Column(nullable = false)
     private String phone;
     @Column(nullable = false)
-    private Double rating;
+    private BigDecimal rating;
     @Column(name = "logo_url")
     private String logoUrl;
     @Column(name = "is_active")
@@ -46,6 +48,7 @@ public class Restaurant {
     @Builder.Default
     private Instant updatedAt = Instant.now();
 
+    @ToString.Exclude
     @OneToMany(mappedBy = "restaurant")
     private List<MenuItem> menuItems;
 

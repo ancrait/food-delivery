@@ -38,7 +38,7 @@ public class Notification {
     private String errorMessage;
     @Builder.Default
     @Column(name = "send_at")
-    private Instant sendAt;
+    private Instant sendAt = Instant.now();
     @Builder.Default
     @Column(nullable = false, name = "created_at")
     private Instant createdAt = Instant.now();

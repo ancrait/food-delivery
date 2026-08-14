@@ -2,6 +2,7 @@ package com.sorokaandriy.restaurant_service.dto;
 
 import lombok.Builder;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
@@ -12,7 +13,7 @@ public record RestaurantResponse(
         String description,
         String address,
         String phone,
-        Double rating,
+        BigDecimal rating,
         String logoUrl,
         boolean isActive,
         Double latitude,

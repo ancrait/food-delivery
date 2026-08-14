@@ -30,6 +30,10 @@ public class DeliveryWebSocketHandler extends TextWebSocketHandler {
     @Override
     public void afterConnectionEstablished(WebSocketSession session) {
         String riderId = getRiderId(session);
+        if (riderId == null) {
+            log.warn("WebSocket connection rejected: no riderId in session attributes");
+            return;
+        }
         sessions.put(riderId, session);
         log.info("Rider {} connected via WebSocket", riderId);
     }
@@ -37,15 +41,26 @@ public class DeliveryWebSocketHandler extends TextWebSocketHandler {
     // for handle rider actions
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
+        String riderId = getRiderId(session);
+        if (riderId == null) {
+            log.warn("Unauthorized WebSocket message: no riderId");
+            return;
+        }
+
         JsonNode json = objectMapper.readTree(message.getPayload());
+        if (!json.has("event") || !json.has("deliveryId")) {
+            log.warn("Invalid WebSocket message: missing event or deliveryId");
+            return;
+        }
+
         String event = json.get("event").asText();
         UUID deliveryId = UUID.fromString(json.get("deliveryId").asText());
 
         switch (event) {
-            case "ACCEPT" -> deliveryService.acceptDelivery(deliveryId);
-            case "DECLINE" -> deliveryService.declineDelivery(deliveryId);
-            case "PICKED_UP" -> deliveryService.pickupDelivery(deliveryId);
-            case "DELIVERED" -> deliveryService.completeDelivery(deliveryId);
+            case "ACCEPT" -> deliveryService.acceptDelivery(deliveryId, riderId);
+            case "DECLINE" -> deliveryService.declineDelivery(deliveryId, riderId);
+            case "PICKED_UP" -> deliveryService.pickupDelivery(deliveryId, riderId);
+            case "DELIVERED" -> deliveryService.completeDelivery(deliveryId, riderId);
             default -> log.warn("Unknown event: {}", event);
         }
     }
@@ -54,8 +69,10 @@ public class DeliveryWebSocketHandler extends TextWebSocketHandler {
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
         String riderId = getRiderId(session);
-        sessions.remove(riderId);
-        log.info("Rider {} disconnected", riderId);
+        if (riderId != null) {
+            sessions.remove(riderId);
+            log.info("Rider {} disconnected", riderId);
+        }
     }
 
     // for writing rider from service
@@ -76,6 +93,7 @@ public class DeliveryWebSocketHandler extends TextWebSocketHandler {
     }
 
     private String getRiderId(WebSocketSession session) {
-        return session.getUri().getQuery().replace("riderId=", "");
+        Object riderId = session.getAttributes().get("riderId");
+        return riderId != null ? riderId.toString() : null;
     }
 }

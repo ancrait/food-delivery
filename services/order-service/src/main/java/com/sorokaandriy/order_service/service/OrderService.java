@@ -13,6 +13,7 @@ import com.sorokaandriy.order_service.kafka.KafkaOrderProducer;
 import com.sorokaandriy.order_service.repository.OrderItemRepository;
 import com.sorokaandriy.order_service.repository.OrderRepository;
 import com.sorokaandriy.order_service.service.mapper.OrderMapper;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
@@ -83,8 +84,12 @@ public class OrderService {
 
         orderRepository.save(order);
 
-        kafkaOrderProducer.sendOrderCreated(
-                mapper.fromOrderToOrderCreatedEvent(order));
+        try {
+            kafkaOrderProducer.sendOrderCreated(
+                    mapper.fromOrderToOrderCreatedEvent(order));
+        } catch (Exception e) {
+            log.error("Failed to send order.created event: {}", e.getMessage());
+        }
 
         return mapper.fromOrderToOrderResponse(order);
 
@@ -100,6 +105,7 @@ public class OrderService {
     }
 
 
+    @Transactional
     public OrderResponse updateOrderStatus(UUID id, Status status) {
 
         Order order = orderRepository.findById(id)

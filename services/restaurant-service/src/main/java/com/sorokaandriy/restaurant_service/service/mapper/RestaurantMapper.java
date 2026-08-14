@@ -104,7 +104,7 @@ public class RestaurantMapper {
                 .price(menuItem.getPrice())
                 .imageUrl(menuItem.getImageUrl())
                 .isAvailable(menuItem.isAvailable())
-                .categoryName(menuItem.getCategory().getName())
+                .categoryName(menuItem.getCategory() != null ? menuItem.getCategory().getName() : null)
                 .build();
 
 
