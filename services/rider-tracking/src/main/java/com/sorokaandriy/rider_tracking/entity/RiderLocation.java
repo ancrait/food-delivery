@@ -23,6 +23,9 @@ public class RiderLocation {
     @Column(name = "rider_id", nullable = false)
     private UUID riderId;
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private RiderStatus status;
+    @Column(nullable = false)
     private Double latitude;
     @Column(nullable = false)
     private Double longitude;

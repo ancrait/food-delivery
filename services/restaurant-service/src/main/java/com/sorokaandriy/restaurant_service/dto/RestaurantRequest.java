@@ -5,6 +5,8 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
+import java.math.BigDecimal;
+
 public record RestaurantRequest(
 
         @NotBlank @Size(max = 256)
@@ -16,7 +18,7 @@ public record RestaurantRequest(
         @NotBlank @Pattern(regexp = "^\\+?[0-9]{10,15}$")
         String phone,
         @NotNull
-        Double rating,
+        BigDecimal rating,
         @Size(max = 256)
         String logoUrl,
         boolean isActive,

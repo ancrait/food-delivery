@@ -112,6 +112,18 @@ services:
     volumes:
       - pg-notification-data:/var/lib/postgresql/data
 
+  postgres-tracking:
+    image: postgres:16-alpine
+    container_name: fd-pg-tracking
+    ports:
+      - "${DB_PORT_TRAC}:5432"
+    environment:
+      POSTGRES_DB: "${DB_NAME_TRAC}"
+      POSTGRES_USER: "${DB_USERNAME_TRAC}"
+      POSTGRES_PASSWORD: "${DB_PASSWORD_TRAC}"
+    volumes:
+      - pg-tracking-data:/var/lib/postgresql/data
+
 volumes:
   kafka-data:
   redis-data:
@@ -121,3 +133,4 @@ volumes:
   pg-delivery-data:
   pg-payment-data:
   pg-notification-data:
+  pg-tracking-data:

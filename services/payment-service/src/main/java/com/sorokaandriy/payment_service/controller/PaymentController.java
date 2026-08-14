@@ -43,4 +43,10 @@ public class PaymentController {
         service.handleWebhook(payload, sigHeader);
         return ResponseEntity.ok().build();
     }
+
+    @PutMapping("/{id}/confirm")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<PaymentResponse> confirmPayment(@PathVariable UUID id) {
+        return ResponseEntity.ok(service.confirmPayment(id));
+    }
 }

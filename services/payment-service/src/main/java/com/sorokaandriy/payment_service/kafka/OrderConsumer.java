@@ -1,7 +1,7 @@
 package com.sorokaandriy.payment_service.kafka;
 
+import com.sorokaandriy.payment_service.dto.OrderCancelledEvent;
 import com.sorokaandriy.payment_service.dto.OrderCreatedEvent;
-import com.sorokaandriy.payment_service.entity.Payment;
 import com.sorokaandriy.payment_service.service.PaymentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,4 +22,14 @@ public class OrderConsumer {
 
 
     }
+
+    @KafkaListener(topics = "${kafka.topics.order-cancel}", groupId = "${spring.kafka.consumer.group-id}")
+    public void getOrderCanceled(OrderCancelledEvent event){
+        log.info("Received order.canceled event for orderId={}", event.orderId());
+        paymentService.cancelPayment(event.orderId());
+
+
+    }
+
+
 }

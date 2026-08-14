@@ -2,6 +2,7 @@ package com.sorokaandriy.delivery_service.controller;
 
 
 import com.sorokaandriy.delivery_service.dto.DeliveryResponse;
+import com.sorokaandriy.delivery_service.dto.RiderLocationRequest;
 import com.sorokaandriy.delivery_service.dto.RiderResponse;
 import com.sorokaandriy.delivery_service.entity.RiderStatus;
 import com.sorokaandriy.delivery_service.service.DeliveryService;
@@ -10,6 +11,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,18 +28,23 @@ public class DeliveryController {
 
     @PostMapping("/rider")
     @PreAuthorize("hasRole('RIDER')")
-    public ResponseEntity<RiderResponse> createRiderProfile(){
-        return ResponseEntity.status(HttpStatus.CREATED).body(service.createRiderProfile());
+    public ResponseEntity<RiderResponse> createRiderProfile(
+            @AuthenticationPrincipal Jwt jwt,
+            @RequestBody(required = false) RiderLocationRequest locationRequest
+    ) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(service.createRiderProfile(jwt.getTokenValue(), locationRequest));
     }
 
 
     @PutMapping("/rider/{id}/status")
     @PreAuthorize("hasRole('RIDER')")
     public ResponseEntity<RiderResponse> changeRiderStatus(
+            @AuthenticationPrincipal Jwt jwt,
             @PathVariable UUID id,
             @RequestParam RiderStatus status
             ){
-        return ResponseEntity.ok(service.changeRiderStatus(id, status));
+        return ResponseEntity.ok(service.changeRiderStatus(jwt.getTokenValue(), id, status));
     }
 
 

@@ -29,7 +29,10 @@ public class SecurityConfig {
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .authorizeExchange(exchanges -> exchanges
                         .pathMatchers("/api/v1/auth/**", "/actuator/**").permitAll()
-                        .pathMatchers(HttpMethod.GET).permitAll()
+                        .pathMatchers(HttpMethod.GET,
+                                "/api/v1/restaurants/**",
+                                "/api/v1/categories/**")
+                        .permitAll()
                         .pathMatchers("/api/v1/restaurants/**", "/api/v1/categories/**",
                                 "/api/v1/orders/**","/api/v1/deliveries/**","/api/v1/tracking/**",
                                 "/api/v1/payments/**")
@@ -48,7 +51,9 @@ public class SecurityConfig {
     @Bean
     public ReactiveJwtDecoder jwtDecoder() {
         byte[] keyBytes = jwtSecret.getBytes(StandardCharsets.UTF_8);
-        return NimbusReactiveJwtDecoder.withSecretKey(new SecretKeySpec(keyBytes, "HmacSHA256")).build();
+        byte[] hs256Key = new byte[32];
+        System.arraycopy(keyBytes, 0, hs256Key, 0, Math.min(keyBytes.length, 32));
+        return NimbusReactiveJwtDecoder.withSecretKey(new SecretKeySpec(hs256Key, "HmacSHA256")).build();
     }
 
 
@@ -56,7 +61,7 @@ public class SecurityConfig {
     @Bean
     public ReactiveJwtAuthenticationConverter jwtAuthenticationConverter() {
         var authoritiesConverter = new JwtGrantedAuthoritiesConverter();
-        authoritiesConverter.setAuthorityPrefix("ROLE_");
+        authoritiesConverter.setAuthorityPrefix("");
         authoritiesConverter.setAuthoritiesClaimName("roles");
 
         var converter = new ReactiveJwtAuthenticationConverter();

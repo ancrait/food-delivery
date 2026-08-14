@@ -3,7 +3,7 @@ package com.sorokaandriy.rider_tracking.service;
 import com.sorokaandriy.rider_tracking.dto.RiderLocationRequest;
 import com.sorokaandriy.rider_tracking.dto.RiderLocationResponse;
 import com.sorokaandriy.rider_tracking.entity.RiderLocation;
-import com.sorokaandriy.rider_tracking.exception.RiderLocationNotFoundException;
+import com.sorokaandriy.rider_tracking.entity.RiderStatus;
 import com.sorokaandriy.rider_tracking.repository.RiderLocationRepository;
 import com.sorokaandriy.rider_tracking.service.mapper.RiderLocationMapper;
 import lombok.RequiredArgsConstructor;
@@ -23,11 +23,14 @@ public class RiderLocationService {
     
 
     public RiderLocationResponse updateLocation(RiderLocationRequest request) {
+        validateCoordinates(request.latitude(), request.longitude());
+
         RiderLocation location = riderLocationRepository
                 .findByRiderId(request.riderId())
                 .orElse(new RiderLocation());
 
         location.setRiderId(request.riderId());
+        location.setStatus(request.status());
         location.setLatitude(request.latitude());
         location.setLongitude(request.longitude());
         location.setUpdatedAt(Instant.now());
@@ -37,9 +40,23 @@ public class RiderLocationService {
         return mapper.fromRiderLocationToRiderLocationResponse(location);
     }
 
+    public RiderLocationResponse updateStatus(UUID riderId, RiderStatus status) {
+        RiderLocation location = riderLocationRepository.findByRiderId(riderId)
+                .orElseThrow(() -> new RuntimeException("Rider location not found"));
+
+        location.setStatus(status);
+        location.setUpdatedAt(Instant.now());
+        riderLocationRepository.save(location);
+
+        return mapper.fromRiderLocationToRiderLocationResponse(location);
+    }
+
 
     public RiderLocationResponse findNearestRiderLocation(Double latitude, Double longitude) {
+        validateCoordinates(latitude, longitude);
+
         return riderLocationRepository.findAll().stream()
+                .filter(riderLocation -> riderLocation.getStatus() == RiderStatus.ONLINE)
                 .map(riderLocation -> Map.entry(riderLocation,
                         haversine(latitude, longitude, riderLocation.getLatitude(), riderLocation.getLongitude())))
                 .min(Map.Entry.comparingByValue())
@@ -49,6 +66,7 @@ public class RiderLocationService {
                     return new RiderLocationResponse(
                             nearest.getId(),
                             nearest.getRiderId(),
+                            nearest.getStatus(),
                             nearest.getLatitude(),
                             nearest.getLongitude(),
                             distance,
@@ -56,6 +74,15 @@ public class RiderLocationService {
                     );
                 })
                 .orElseThrow(() -> new RuntimeException("No riders available"));
+    }
+
+    private void validateCoordinates(Double latitude, Double longitude) {
+        if (latitude == null || latitude < -90 || latitude > 90) {
+            throw new IllegalArgumentException("Latitude must be between -90 and 90");
+        }
+        if (longitude == null || longitude < -180 || longitude > 180) {
+            throw new IllegalArgumentException("Longitude must be between -180 and 180");
+        }
     }
 
 

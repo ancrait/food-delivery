@@ -28,6 +28,7 @@ public class VerificationToken {
     private String token;
     @Column(nullable = false, name = "expires_at")
     private Instant expiresAt;
+    @Builder.Default
     @Column(nullable = false, name = "created_at")
     private Instant createdAt = Instant.now();
 

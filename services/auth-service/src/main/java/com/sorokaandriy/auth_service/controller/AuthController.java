@@ -5,10 +5,13 @@ import com.sorokaandriy.auth_service.entity.VerificationToken;
 import com.sorokaandriy.auth_service.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
@@ -33,6 +36,7 @@ public class AuthController {
     public ResponseEntity<AuthResponse> refresh(
             @Valid @RequestBody RefreshTokenRequest request
     ){
+        log.info("Refresh called with token: {}", request.refreshToken());
         return ResponseEntity.ok(authService.refresh(request));
     }
 
@@ -51,6 +55,15 @@ public class AuthController {
             ){
         authService.verifyEmail(request);
         return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+
+    @GetMapping("/verify")
+    public ResponseEntity<String> verifyEmailByLink(
+            @RequestParam String token
+    ){
+        authService.verifyEmail(new VerifyEmailRequest(token));
+        return ResponseEntity.ok("Email verified successfully. You can now log in.");
     }
 
 
